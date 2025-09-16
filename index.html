@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba de Banner UVM</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+    .banner { position: relative; width: 100%; max-width: 900px; margin: 20px auto; }
+    .banner img { width: 100%; border-radius: 12px; }
+    .texto { position: absolute; bottom: 30px; left: 20px; background: rgba(0,0,0,0.6); color: #fff; padding: 10px; border-radius: 6px; }
+    .cta { display: inline-block; margin-top: 10px; padding: 10px 20px; background: #e30613; color: #fff; text-decoration: none; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Publicidad Dinámica UVM</h1>
+
+  <label for="region">Selecciona tu región:</label>
+  <select id="region">
+    <option value="CDMX">CDMX</option>
+    <option value="Guadalajara">Guadalajara</option>
+    <option value="Monterrey">Monterrey</option>
+  </select>
+
+  <div class="banner" id="banner"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
