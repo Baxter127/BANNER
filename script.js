@@ -1,26 +1,34 @@
-const sheetId = '1aBcD_ExAmPlE1234567'; // reemplaza con tu ID
-const sheetName = 'Hoja1'; // nombre de la hoja en Google Sheets
-const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+// URL de la hoja en CSV (corrigida)
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7s2i7Ntt_hHKjayaDy58Joj8HO1deKznbBXfFiWMchrEfhIQc_RM-y8lWATAVlI36ya-5iiXGG1BY/pub?output=csv";
 
 let banners = [];
 
-// Cargar datos desde Google Sheets
-fetch(url)
+// Función para convertir CSV a objetos JS
+function parseCSV(csv) {
+  const lines = csv.split("\n");
+  const headers = lines[0].split(",");
+  return lines.slice(1).map(line => {
+    const cols = line.split(",");
+    return {
+      id: cols[0],
+      imagen: cols[1],
+      texto: cols[2],
+      cta: cols[3],
+      region: cols[4],
+      ponderacion: parseInt(cols[5]) || 1
+    };
+  });
+}
+
+// Cargar datos desde Google Sheets (CSV)
+fetch(csvUrl)
   .then(res => res.text())
-  .then(rep => {
-    const jsonData = JSON.parse(rep.substr(47).slice(0, -2)); // formatear JSON
-    banners = jsonData.table.rows.map(r => ({
-      id: r.c[0].v,
-      imagen: r.c[1].v,
-      texto: r.c[2].v,
-      cta: r.c[3].v,
-      region: r.c[4].v,
-      ponderacion: r.c[5].v
-    }));
+  .then(data => {
+    banners = parseCSV(data);
     mostrarBanner("CDMX"); // banner inicial
   });
 
-// Función para mostrar banner según región
+// Mostrar banner según región y ponderación
 function mostrarBanner(region) {
   const candidatos = banners.filter(b => b.region === region);
 
@@ -29,7 +37,6 @@ function mostrarBanner(region) {
     return;
   }
 
-  // Selección según ponderación
   let total = candidatos.reduce((sum, b) => sum + b.ponderacion, 0);
   let rand = Math.random() * total;
   let seleccionado;
@@ -51,7 +58,7 @@ function mostrarBanner(region) {
   `;
 }
 
-// Cambiar banner al seleccionar región
-document.getElementById("region").addEventListener("change", (e) => {
+// Evento al cambiar región
+document.getElementById("region").addEventListener("change", e => {
   mostrarBanner(e.target.value);
 });
