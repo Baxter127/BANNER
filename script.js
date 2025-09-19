@@ -3,11 +3,9 @@ const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7s2i7Ntt_hHKja
 
 let banners = [];
 
-// Función para convertir CSV a objetos JS
+// Parse CSV a objetos
 function parseCSV(csv) {
   const lines = csv.split("\n").filter(l => l.trim() !== "");
-  const headers = lines[0].split(",");
-
   return lines.slice(1).map(line => {
     const cols = line.split(",");
     return {
@@ -17,22 +15,23 @@ function parseCSV(csv) {
       cta: cols[3],
       region: cols[4],
       ponderacion: parseInt(cols[5]) || 1,
-      estado: (cols[6] || "").trim().toLowerCase() // ahora espera "on" o "off"
+      estado: (cols[6] || "").trim().toLowerCase() // "on" o "off"
     };
   });
 }
 
-// Cargar datos desde Google Sheets (CSV)
+// Cargar datos de Sheets
 fetch(csvUrl)
   .then(res => res.text())
   .then(data => {
     banners = parseCSV(data);
-    mostrarBanner("CDMX"); // banner inicial
+    // Mostrar CDMX por defecto
+    mostrarBanner("CDMX");
   });
 
-// Mostrar banner según región y ponderación
+// Mostrar un banner aleatorio según región
 function mostrarBanner(region) {
-  // Filtramos por región y solo los que estén "on"
+  // Filtramos por región y solo los que estén activos
   const candidatos = banners.filter(b => b.region === region && b.estado === "on");
 
   if (candidatos.length === 0) {
@@ -53,6 +52,7 @@ function mostrarBanner(region) {
     rand -= b.ponderacion;
   }
 
+  // Render del banner
   document.getElementById("banner").innerHTML = `
     <img src="${seleccionado.imagen}" alt="banner">
     <div class="texto">
@@ -61,14 +61,3 @@ function mostrarBanner(region) {
     </div>
   `;
 }
-
-// Evento al cambiar región
-document.getElementById("region").addEventListener("change", e => {
-  mostrarBanner(e.target.value);
-});
-
-// 🔄 Mostrar aleatorio cada vez que recargues la página
-window.onload = () => {
-  const region = document.getElementById("region").value;
-  mostrarBanner(region);
-};
