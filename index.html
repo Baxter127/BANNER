@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Publicidad UVM</title>
+  <style>
+    body { margin:0; font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
+
+    .banner {
+      position: relative;
+      width: 100%;
+      max-width: 1150px;
+      margin: 20px auto;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      text-align: left;
+      color: white;
+    }
+
+    .banner img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Contenido sobre la imagen */
+    .contenido {
+      position: absolute;
+      top: 20%;
+      left: 8%;
+      max-width: 50%;
+    }
+
+    .contenido h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin: 0 0 15px;
+      line-height: 1.2;
+    }
+
+    .contenido p {
+      font-size: 1.2rem;
+      margin: 0 0 20px;
+    }
+
+    .cta {
+      display: inline-block;
+      padding: 14px 28px;
+      background: #fff;
+      color: #e30613;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .cta:hover {
+      background: #e30613;
+      color: #fff;
+    }
+
+    /* Cinta inferior */
+    .cinta {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner" id="banner"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
