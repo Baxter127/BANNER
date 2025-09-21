@@ -1,63 +1,65 @@
-// URL de la hoja en CSV
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7s2i7Ntt_hHKjayaDy58Joj8HO1deKznbBXfFiWMchrEfhIQc_RM-y8lWATAVlI36ya-5iiXGG1BY/pub?output=csv";
+// URL base de tu Google Sheets en formato CSV
+const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7s2i7Ntt_hHKjayaDy58Joj8HO1deKznbBXfFiWMchrEfhIQc_RM-y8lWATAVlI36ya-5iiXGG1BY/pub?output=csv";
 
-let banners = [];
+// Función para parsear CSV de forma segura
+function csvToJson(csv) {
+    const rows = csv.trim().split("\n");
+    rows.shift(); // quitar encabezado
 
-// Parse CSV a objetos
-function parseCSV(csv) {
-  const lines = csv.split("\n").filter(l => l.trim() !== "");
-  return lines.slice(1).map(line => {
-    const cols = line.split(",");
-    return {
-      id: cols[0],
-      imagen: cols[1],
-      texto: cols[2],
-      cta: cols[3],
-      region: cols[4],
-      ponderacion: parseInt(cols[5]) || 1,
-      estado: (cols[6] || "").trim().toLowerCase() // "on" o "off"
-    };
-  });
+    return rows
+        .filter(r => r.trim() !== "")
+        .map(row => {
+            // Dividir usando regex para respetar comas dentro de comillas
+            const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+
+            return {
+                imagen: cols[1]?.replace(/"/g, "") || "", 
+                titulo: cols[2]?.replace(/"/g, "") || "",
+                condicion: cols[3]?.replace(/"/g, "") || "",
+                boton: cols[4]?.replace(/"/g, "") || "",
+                cta: cols[5]?.replace(/"/g, "") || "",
+                cinta: cols[6]?.replace(/"/g, "") || "",
+                onoff: (cols[7] || "").toLowerCase().trim()
+            };
+        });
 }
 
-// Cargar datos de Sheets
-fetch(csvUrl)
-  .then(res => res.text())
-  .then(data => {
-    banners = parseCSV(data);
-    // Mostrar CDMX por defecto
-    mostrarBanner("CDMX");
-  });
+async function cargarBanner() {
+    try {
+        const csvUrl = `${baseUrl}&t=${Date.now()}`; // Evitar cache
+        const res = await fetch(csvUrl, { cache: "no-store" });
+        const csvData = await res.text();
+        const data = csvToJson(csvData);
 
-// Mostrar un banner aleatorio según región
-function mostrarBanner(region) {
-  // Filtramos por región y solo los que estén activos
-  const candidatos = banners.filter(b => b.region === region && b.estado === "on");
+        // Filtrar solo los "on"
+        const activos = data.filter(b => b.onoff === "on");
 
-  if (candidatos.length === 0) {
-    document.getElementById("banner").innerHTML = "<p>No hay publicidad activa para esta región.</p>";
-    return;
-  }
+        const banner = document.getElementById("banner");
+        banner.innerHTML = ""; // Limpiar cualquier contenido previo
 
-  // Selección aleatoria con ponderación
-  let total = candidatos.reduce((sum, b) => sum + b.ponderacion, 0);
-  let rand = Math.random() * total;
-  let seleccionado;
+        if (activos.length === 0) {
+            banner.innerHTML = "<p>No hay publicidad activa.</p>";
+            return;
+        }
 
-  for (let b of candidatos) {
-    if (rand < b.ponderacion) {
-      seleccionado = b;
-      break;
+        // Tomar solo el último activo para consistencia
+        const seleccionado = activos[activos.length - 1];
+
+        // Renderizar banner HTML
+        banner.innerHTML = `
+            <img src="${seleccionado.imagen}" alt="banner">
+            <div class="contenido">
+                <h1>${seleccionado.titulo}</h1>
+                <p>${seleccionado.condicion}</p>
+                <a href="${seleccionado.cta}" target="_blank" class="cta">${seleccionado.boton}</a>
+            </div>
+            ${seleccionado.cinta ? `<div class="cinta">${seleccionado.cinta}</div>` : ""}
+        `;
+
+    } catch (error) {
+        console.error("Error cargando el banner:", error);
+        document.getElementById("banner").innerHTML = "<p>Error al cargar datos.</p>";
     }
-    rand -= b.ponderacion;
-  }
-
-  // Render del banner
-  document.getElementById("banner").innerHTML = `
-    <img src="${seleccionado.imagen}" alt="banner">
-    <div class="texto">
-      <p>${seleccionado.texto}</p>
-      <a class="cta" href="${seleccionado.cta}" target="_blank">Conoce más</a>
-    </div>
-  `;
 }
+
+document.addEventListener("DOMContentLoaded", cargarBanner);
