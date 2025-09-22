@@ -18,7 +18,19 @@
       overflow: hidden;
       text-align: left;
       color: white;
+      min-height: 300px; /* altura mínima para mostrar mensaje aunque no haya imagen */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #333; /* fondo oscuro cuando no hay banner */
     }
+
+    .banner p {
+       color: white;
+       font-size: 1.5rem;
+       font-weight: bold;
+       text-align: center;
+}
 
     .banner img {
       width: 100%;
